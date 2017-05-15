@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.nycosborne.automenu.LiftingActivity">
+
+    <item
+        android:id="@+id/timer"
+        android:title="Un-Clicked"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_alarm_black_24dp"/>
+
+
+    <item
+        android:id="@+id/updateExer"
+        android:title="@string/update_exercise"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/exercisesComplete"
+        android:title="@string/exercises_progress"
+        app:showAsAction="never" />
+
+</menu>

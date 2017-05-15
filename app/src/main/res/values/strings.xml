@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Lifting</string>
+
+    <string-array name="days">
+        <item>Day of Work Out</item>
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+        <item>Sunday</item>
+
+    </string-array>
+    <string name="Weight">Weight</string>
+    <string name="Reps">Reps</string>
+    <string name="Exercise_Name">Exercise Name</string>
+    <string name="Sets">Sets</string>
+    <string name="create_work_out">Create WorkOut</string>
+    <string name="secs_btw_reps">Secs btw reps</string>
+    <string name="Name_of_Work_Out">Name of Work Out</string>
+    <string name="Day_Of_The_Week">Day Of The Week</string>
+    <string name="update_name">Update Name</string>
+    <string name="update_wight">Update Wight</string>
+    <string name="update_reps">Update Reps</string>
+    <string name="update_sets">Update Sets</string>
+    <string name="update_exercise">UpDate Exercise</string>
+    <string name="delete_exercise">Delete Exercise</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="day_of_work_out">Day Of Work Out</string>
+    <string name="repsLabe">Reps :</string>
+    <string name="wight_Lable">Wight :</string>
+    <string name="enter_results">Enter Results</string>
+    <string name="exercise_progress">Exercise Progress</string>
+    <string name="workout_complete">WorkOut Complete</string>
+    <string name="exercises_progress">Exercises Progress</string>
+    <string name="add_exercise">Add Exercise</string>
+    <string name="updated_workout">Updated WorkOut</string>
+    <string name="create_new_work_out">Create New Work Out</string>
+</resources>

@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.nycosborne.automenu.MainActivity">
+    <item
+        android:id="@+id/newWorkOut"
+        android:title="@string/create_new_work_out"
+        app:showAsAction="always" />
+
+</menu>
