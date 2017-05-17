@@ -152,7 +152,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:onClick="deleteExercise"
-        android:text="@string/update_exercise"
+        android:text="@string/delete_exercise"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.934"
         app:layout_constraintLeft_toLeftOf="parent"

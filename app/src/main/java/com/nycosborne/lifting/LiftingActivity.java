@@ -22,14 +22,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.nycosborne.lifting.adapter.DisplaySetAdapter;
 import com.nycosborne.lifting.database.DataSource;
 import com.nycosborne.lifting.model.DisplaySet;
 import com.nycosborne.lifting.model.Exercise;
 import com.nycosborne.lifting.model.Results;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LiftingActivity extends AppCompatActivity implements DisplaySetAdapter.ItemClickCallback {
     private static final String TAG = "LIFTING_ACTIVITY";
@@ -301,9 +301,13 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
                     List<Results> totalResults = mDataSource.getResultsByDisplaySetId(displaySetItem.getDisplaySetId());
 
-                    // TODO: 5/12/17 bug issue here 
-                    totleWight += totalResults.get(0).getWight();
-                    totleReps += totalResults.get(0).getReps();
+                    // TODO: 5/12/17 bug issue here
+                    try {
+                        totleWight += totalResults.get(0).getWight();
+                        totleReps += totalResults.get(0).getReps();
+                    }catch (IndexOutOfBoundsException e){
+                        e.printStackTrace();
+                    }
                 }
             }
 

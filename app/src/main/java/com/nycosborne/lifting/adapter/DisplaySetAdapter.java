@@ -1,6 +1,8 @@
 package com.nycosborne.lifting.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,13 +10,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.List;
-
 import com.nycosborne.lifting.LiftingActivity;
 import com.nycosborne.lifting.R;
 import com.nycosborne.lifting.database.DataSource;
 import com.nycosborne.lifting.model.DisplaySet;
 import com.nycosborne.lifting.model.Results;
+
+import java.util.List;
 
 /**
  * Created by danielosborne on 4/19/17.
@@ -27,6 +29,7 @@ public class DisplaySetAdapter extends RecyclerView.Adapter<DisplaySetAdapter.Vi
 
     private List<DisplaySet> mItems;
     private Context mContext;
+    int evenOdd = 1;
 
     private ItemClickCallback itemClickCallback;
 
@@ -71,8 +74,12 @@ public class DisplaySetAdapter extends RecyclerView.Adapter<DisplaySetAdapter.Vi
         int set = item.getSets();
         int wight = item.getWight();
         int reps = item.getReps();
-
-
+        if ((position % 2) != 0) {
+            holder.constraintLayout.setBackgroundColor(Color.rgb(188, 37, 37));
+        }else {
+            holder.constraintLayout.setBackgroundColor(Color.rgb(155, 32, 32));
+        }
+        evenOdd++;
         holder.tvDec.setText(reps +"reps " + wight + "lb" );
 
 
@@ -142,6 +149,7 @@ public class DisplaySetAdapter extends RecyclerView.Adapter<DisplaySetAdapter.Vi
         public TextView tvOldReps3;
         private ImageView imageV;
         private View contaner;
+        private ConstraintLayout constraintLayout;
 
         public View mView;
 
@@ -155,6 +163,7 @@ public class DisplaySetAdapter extends RecyclerView.Adapter<DisplaySetAdapter.Vi
             tvOldReps2 = (TextView) itemView.findViewById(R.id.oldRepstextView2);
             tvOldReps3 = (TextView) itemView.findViewById(R.id.oldRepstextView3);
             contaner = itemView.findViewById(R.id.displaySet_item_root);
+            constraintLayout = (ConstraintLayout)itemView.findViewById(R.id.displaySet_item_root_style_Leyer);
 
             imageV.setOnClickListener(this);
             contaner.setOnClickListener(this);
