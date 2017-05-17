@@ -30,7 +30,6 @@ public class DisplaySetAdapter extends RecyclerView.Adapter<DisplaySetAdapter.Vi
     private List<DisplaySet> mItems;
     private Context mContext;
     int evenOdd = 1;
-
     private ItemClickCallback itemClickCallback;
 
     public interface ItemClickCallback {
