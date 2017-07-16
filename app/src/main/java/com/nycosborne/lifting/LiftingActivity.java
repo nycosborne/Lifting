@@ -4,10 +4,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.icu.util.Calendar;
+import android.icu.util.GregorianCalendar;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
@@ -22,6 +26,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 import com.nycosborne.lifting.adapter.DisplaySetAdapter;
 import com.nycosborne.lifting.database.DataSource;
 import com.nycosborne.lifting.model.DisplaySet;
@@ -29,6 +37,7 @@ import com.nycosborne.lifting.model.Exercise;
 import com.nycosborne.lifting.model.Results;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class LiftingActivity extends AppCompatActivity implements DisplaySetAdapter.ItemClickCallback {
@@ -57,6 +66,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
     public NotificationCompat.Builder notifyOBJ;
     private static final int uniuqID = 23463;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +100,59 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         }catch (NullPointerException e){
             e.printStackTrace();
         }
+
+
+
+        Calendar calendar1 = new GregorianCalendar(2016,06,19);
+        Calendar calendar2 = new GregorianCalendar(2016,06,20);
+        Calendar calendar3 = new GregorianCalendar(2016,06,21);
+        Calendar calendar4 = new GregorianCalendar(2016,06,26);
+
+        Calendar calendar = Calendar.getInstance();
+
+
+        Date d1 = calendar1.getTime();
+
+        Date d2 = calendar2.getTime();
+
+        Date d3 = calendar3.getTime();
+
+        Date d4 = calendar4.getTime();
+
+        GraphView graph = (GraphView) findViewById(R.id.graph);
+
+
+
+// you can directly pass Date objects to DataPoint-Constructor
+// this will convert the Date to double via Date#getTime()
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
+                new DataPoint(d1, 1),
+                new DataPoint(d2, 3),
+                new DataPoint(d3, 4),
+                new DataPoint(d4, 6)
+
+        });
+
+        graph.addSeries(series);
+
+// set date label formatter
+        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
+        graph.getGridLabelRenderer().setNumHorizontalLabels(4); // only 4 because of the space
+
+// set manual x bounds to have nice steps
+//
+        graph.getViewport().setMinX(d1.getTime());
+        graph.getViewport().setMaxX(d4.getTime());
+        graph.getViewport().setXAxisBoundsManual(true);
+
+        graph.getViewport().setMinY(1.0);
+        graph.getViewport().setMaxY(15.0);
+        graph.getViewport().setYAxisBoundsManual(true);
+
+// as we use dates as labels, the human rounding to nice readable numbers
+// is not necessary
+        graph.getGridLabelRenderer().setHumanRounding(false);
+
     }
 
     @Override
