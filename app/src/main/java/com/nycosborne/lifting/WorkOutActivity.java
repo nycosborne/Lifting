@@ -10,13 +10,13 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.nycosborne.lifting.adapter.ExceriseAdapter;
 import com.nycosborne.lifting.database.DataSource;
 import com.nycosborne.lifting.model.Exercise;
 import com.nycosborne.lifting.model.WorkOut;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WorkOutActivity extends AppCompatActivity {
     private static final String WORKOUT_ACTIVITY= "WorkOut_Activity";
@@ -41,7 +41,6 @@ public class WorkOutActivity extends AppCompatActivity {
         RecyclerView recyclerView = (RecyclerView)findViewById(R.id.workOutRcy);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
-
 
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(helperCallback());

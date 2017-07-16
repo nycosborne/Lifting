@@ -107,6 +107,10 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         Calendar calendar2 = new GregorianCalendar(2016,06,20);
         Calendar calendar3 = new GregorianCalendar(2016,06,21);
         Calendar calendar4 = new GregorianCalendar(2016,06,26);
+        Calendar calendar5 = new GregorianCalendar(2016,07,11);
+        Calendar calendar6 = new GregorianCalendar(2016,07,13);
+        Calendar calendar7 = new GregorianCalendar(2016,07,21);
+        Calendar calendar8 = new GregorianCalendar(2016,07,23);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -118,6 +122,13 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         Date d3 = calendar3.getTime();
 
         Date d4 = calendar4.getTime();
+        Date d5 = calendar5.getTime();
+
+        Date d6 = calendar6.getTime();
+
+        Date d7 = calendar7.getTime();
+
+        Date d8 = calendar8.getTime();
 
         GraphView graph = (GraphView) findViewById(R.id.graph);
 
@@ -129,7 +140,11 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
                 new DataPoint(d1, 1),
                 new DataPoint(d2, 3),
                 new DataPoint(d3, 4),
-                new DataPoint(d4, 6)
+                new DataPoint(d4, 6),
+                new DataPoint(d5, 1),
+                new DataPoint(d6, 3),
+                new DataPoint(d7, 4),
+                new DataPoint(d8, 10)
 
         });
 
@@ -142,7 +157,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 // set manual x bounds to have nice steps
 //
         graph.getViewport().setMinX(d1.getTime());
-        graph.getViewport().setMaxX(d4.getTime());
+        graph.getViewport().setMaxX(d8.getTime());
         graph.getViewport().setXAxisBoundsManual(true);
 
         graph.getViewport().setMinY(1.0);
