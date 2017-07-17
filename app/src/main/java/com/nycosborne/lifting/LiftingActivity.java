@@ -80,7 +80,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
             List<Exercise> exerciseListt = mDataSource.getExercisesById(WorkOutActivity.exerciseSelected);
             mExercise = exerciseListt.get(0);
 
-            Log.d(TAG, "onCreate: " + mExercise.getRestTime());
+
 
             assert mExercise != null;
             mRestTime  = mExercise.getRestTime();
@@ -103,6 +103,30 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
 
 
+
+
+// you can directly pass Date objects to DataPoint-Constructor
+// this will convert the Date to double via Date#getTime()
+
+        int wight = 0;
+        int reps = 0;
+        List<Exercise> allExercises = mDataSource.getExercisesByWorkOutId(mExercise.getWorkOutId());
+        for (Exercise ExerciseItem: allExercises ) {
+
+            List<DisplaySet> displayIsCheck = mDataSource.getDisplaySetByExerciseId(ExerciseItem.getExerciseId());
+            for (DisplaySet displaySetItem: displayIsCheck) {
+
+                List<Results> totalResults = mDataSource.getResultsByDisplaySetId(displaySetItem.getDisplaySetId());
+                if (displaySetItem.getIsChecked()==1){
+                    wight += totalResults.get(0).getWight();
+                    reps += totalResults.get(0).getReps();
+                    Log.d("DBPull", "DBPull : " + wight);
+                }
+
+            }
+        }
+
+
         Calendar calendar1 = new GregorianCalendar(2016,06,19);
         Calendar calendar2 = new GregorianCalendar(2016,06,20);
         Calendar calendar3 = new GregorianCalendar(2016,06,21);
@@ -116,37 +140,35 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
 
         Date d1 = calendar1.getTime();
-
         Date d2 = calendar2.getTime();
-
         Date d3 = calendar3.getTime();
-
         Date d4 = calendar4.getTime();
         Date d5 = calendar5.getTime();
-
         Date d6 = calendar6.getTime();
-
         Date d7 = calendar7.getTime();
-
         Date d8 = calendar8.getTime();
 
         GraphView graph = (GraphView) findViewById(R.id.graph);
 
+        for (int i = 0; i > 0; i++){
 
-
-// you can directly pass Date objects to DataPoint-Constructor
-// this will convert the Date to double via Date#getTime()
+        }
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
-                new DataPoint(d1, 1),
+
+
+
+                new DataPoint(d1, wight),
                 new DataPoint(d2, 3),
                 new DataPoint(d3, 4),
                 new DataPoint(d4, 6),
                 new DataPoint(d5, 1),
                 new DataPoint(d6, 3),
                 new DataPoint(d7, 4),
-                new DataPoint(d8, 10)
+                new DataPoint(d8, 10),
+
 
         });
+
 
         graph.addSeries(series);
 
