@@ -108,23 +108,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 // you can directly pass Date objects to DataPoint-Constructor
 // this will convert the Date to double via Date#getTime()
 
-        int wight = 0;
-        int reps = 0;
-        List<Exercise> allExercises = mDataSource.getExercisesByWorkOutId(mExercise.getWorkOutId());
-        for (Exercise ExerciseItem: allExercises ) {
 
-            List<DisplaySet> displayIsCheck = mDataSource.getDisplaySetByExerciseId(ExerciseItem.getExerciseId());
-            for (DisplaySet displaySetItem: displayIsCheck) {
-
-                List<Results> totalResults = mDataSource.getResultsByDisplaySetId(displaySetItem.getDisplaySetId());
-                if (displaySetItem.getIsChecked()==1){
-                    wight += totalResults.get(0).getWight();
-                    reps += totalResults.get(0).getReps();
-                    Log.d("DBPull", "DBPull : " + wight);
-                }
-
-            }
-        }
 
 
         Calendar calendar1 = new GregorianCalendar(2016,06,19);
@@ -150,14 +134,13 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
         GraphView graph = (GraphView) findViewById(R.id.graph);
 
-        for (int i = 0; i > 0; i++){
 
-        }
+
+        getGraphData();
+
+    //    LineGraphSeries<DataPoint> series = new LineGraphSeries<>(getGraphData());
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
-
-
-
-                new DataPoint(d1, wight),
+                new DataPoint(d1, 4),
                 new DataPoint(d2, 3),
                 new DataPoint(d3, 4),
                 new DataPoint(d4, 6),
@@ -165,7 +148,6 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
                 new DataPoint(d6, 3),
                 new DataPoint(d7, 4),
                 new DataPoint(d8, 10),
-
 
         });
 
@@ -190,6 +172,77 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 // is not necessary
         graph.getGridLabelRenderer().setHumanRounding(false);
 
+    }
+
+
+
+
+    private DataPoint[] getGraphData() {
+
+        double wight = 0;
+        double reps = 0;
+        double set = 1;
+        double avgWight = 0;
+        double avgRegs = 0;
+        String dateBind;
+        ArrayList<String> dates = new ArrayList<String>();
+
+        int count = 0;
+        DataPoint[] values = new DataPoint[count];
+        ArrayList<Double> arl =new ArrayList<>();
+
+
+
+
+
+            List<DisplaySet> displayIsCheck = mDataSource.getDisplaySetByExerciseId(mExercise.getExerciseId());
+            for (DisplaySet displaySetItem: displayIsCheck) {
+
+
+                if (displaySetItem.getIsChecked()==0){
+                List<Results> totalResults = mDataSource.getResultsByDisplaySetId(displaySetItem.getDisplaySetId());
+                    for (Results resultItem: totalResults) {
+                        if(totalResults.size() != 0) {
+
+
+
+
+
+                            Log.d("DBPull", "DBPull : " +  resultItem.getWight() + "/"+  resultItem.getReps() +"/    "+ resultItem.getTimeStamp());
+                            set = displaySetItem.getSets();
+
+
+                            wight += resultItem.getWight();
+                            reps += resultItem.getReps();
+
+
+                        }
+                    }
+
+                }
+
+                Log.d("DBPull", "DBPull : " +  wight);
+
+            }
+
+        avgWight = wight/set;
+        avgRegs = reps/set;
+        arl.add(avgWight);
+        // Log.d("DBPull", "DBPull : " +  arl + " " + wight);
+
+
+
+       // Log.d("DBPull", "DBPull : " +  arl);
+
+
+        for (int i=0; i<count; i++) {
+            double x = i;
+            double f = 0;
+            double y = 0;
+            DataPoint v = new DataPoint(x, y);
+            values[i] = v;
+        }
+        return values;
     }
 
     @Override
@@ -348,6 +401,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         int unLiftedWight = 0;
         int unLiftedResp = 0;
 
+
         List<Exercise> allExercises = mDataSource.getExercisesByWorkOutId(mExercise.getWorkOutId());
         for (Exercise ExerciseItem: allExercises ) {
 
@@ -360,8 +414,8 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
                if (displaySetItem.getIsChecked()==1){
                    totleWight += totalResults.get(0).getWight();
                    totleReps += totalResults.get(0).getReps();
-               }
 
+               }
             }
         }
 
