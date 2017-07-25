@@ -134,9 +134,11 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         GraphView graph = (GraphView) findViewById(R.id.graph);
 
 
-        LineGraphSeries<DataPoint> series2 = new LineGraphSeries<>(getGraphData());
+        LineGraphSeries<DataPoint> seriesReps = new LineGraphSeries<>(getRepsGraphData());
 
-
+        LineGraphSeries<DataPoint> seriesWeight = new LineGraphSeries<>(getWeightGraphData());
+        Log.d("BuildTest", "onCreate: " + getRepsGraphData().length);
+        Log.d("BuildTest", "onCreate: " + getWeightGraphData().length);
 
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
                 new DataPoint(d1, 4),
@@ -151,24 +153,25 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         });
 
 
-        graph.addSeries(series2);
-        series2.setColor(Color.GREEN);
+
+        graph.addSeries(seriesWeight);
+        graph.addSeries(seriesReps);
+        seriesWeight.setColor(Color.RED);
        // graph.addSeries(series);
 // set date label formatter
         graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+
+
+        graph.getGridLabelRenderer().setNumHorizontalLabels(4); // only 4 because of the space
 
 // set manual x bounds to have nice steps
-//
-        graph.getViewport().setMinX(date[0].getTime());
-        graph.getViewport().setMaxX(date[date.length - 1].getTime());
-        graph.getViewport().setXAxisBoundsManual(true);
 
-        for (int i = 0; i < date.length; i++) {
-            Log.d("DateBuildTest", "getGraphData: "  + date[i]);
+        if ( date.length > 0) {
+            graph.getViewport().setMinX(date[0].getTime());
+            graph.getViewport().setMaxX(date[date.length - 1].getTime());
+            graph.getViewport().setXAxisBoundsManual(true);
+
         }
-
-
 
         graph.getViewport().setMinY(1.0);
         graph.getViewport().setMaxY(150.0);
@@ -178,11 +181,10 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 // is not necessary
 
         graph.getGridLabelRenderer().setHumanRounding(false);
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private DataPoint[] getGraphData() {
+    private DataPoint[] getWeightGraphData() {
 
         double wight = 0;
         double reps = 0;
@@ -213,16 +215,20 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         for (int ii=0; ii<totalResultHolder.size(); ii++) {
             String x = totalResultHolder.get(ii).getTimeStamp();
 
+
             String [] allDated = x.split("/");
 
             int year = Integer.parseInt(allDated[2]);
             int month = Integer.parseInt(allDated[0]);
             int day = Integer.parseInt(allDated[1]);
 
-            calendar1 = new GregorianCalendar(year,1-month,day);
+            int test  = 01;
 
-            //calendar1 = new GregorianCalendar(2016,07,01);
 
+//            calendar1 = new GregorianCalendar(17,6,day);
+            calendar1 = new GregorianCalendar(year+2000,month,day);
+
+// TODO: 7/24/17 it's the month thats wiered
 
             date[ii] = calendar1.getTime();
             double y = totalResultHolder.get(ii).getWight();
@@ -232,8 +238,60 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
             values[ii] =v;
         }
-        for (int q = 0; q < date.length; q++) {
-            Log.d("DateBuildTest", "getGraphData: Other "  + date[q]);
+        return values;
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private DataPoint[] getRepsGraphData() {
+
+        double wight = 0;
+        double reps = 0;
+        double set = 1;
+        double avgWight = 0;
+        double avgRegs = 0;
+
+        ArrayList<String> dates = new ArrayList<String>();
+
+        int count = 0;
+        ArrayList<Double> arl =new ArrayList<>();
+        List<Results> totalResultHolder;
+
+        List<DisplaySet> displayIsCheck = mDataSource.getDisplaySetByExerciseId(mExercise.getExerciseId());
+
+        String[] dateBind = new String[displayIsCheck.size()];
+        int i = 0;
+        for (DisplaySet displaySetItem: displayIsCheck) {
+
+            dateBind[i] = displaySetItem.getDisplaySetId();
+            i++;
+
+        }
+        totalResultHolder = mDataSource.getResultsDataPoint(dateBind);
+
+        DataPoint[] values = new DataPoint[totalResultHolder.size()];
+        date = new Date[totalResultHolder.size()];
+        for (int ii=0; ii<totalResultHolder.size(); ii++) {
+            String x = totalResultHolder.get(ii).getTimeStamp();
+
+
+            String [] allDated = x.split("/");
+
+            int year = Integer.parseInt(allDated[2]);
+            int month = Integer.parseInt(allDated[0]);
+            int day = Integer.parseInt(allDated[1]);
+
+            int test  = 01;
+
+
+            calendar1 = new GregorianCalendar(year+2000,month,day);
+
+            date[ii] = calendar1.getTime();;
+            DataPoint v = new DataPoint(date[ii], totalResultHolder.get(ii).getReps());
+
+
+
+            values[ii] =v;
         }
         return values;
     }

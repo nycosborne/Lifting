@@ -278,12 +278,12 @@ public class DataSource {
                 "'a3184ecf-5df8-4e7b-86a8-a73fe589e1e5' or 'da13ef33-f672-4c1b-ac1c-8196b81d5419' GROUP BY timeStamp";
 
 
-        queryTest = "SELECT SUM(wight),SUM(reps), timeStamp FROM results  where displaySetId =";
+        queryTest = "SELECT SUM(wight),SUM(reps), timeStamp FROM results where displaySetId =";
 
         for (int i = 0; i < id1.length; i++) {
 
             if (i+1<id1.length) {
-                queryTest = queryTest.concat("'" + id1[i] + "'" + " or ");
+                queryTest = queryTest.concat("'" + id1[i] + "'" + " or displaySetId =");
             }else {
                 queryTest = queryTest.concat("'" + id1[i] + "'");
             }
