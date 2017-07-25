@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.icu.util.Calendar;
 import android.icu.util.GregorianCalendar;
 import android.media.RingtoneManager;
@@ -65,6 +66,8 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
     public static String displaySetId;
     public NotificationCompat.Builder notifyOBJ;
     private static final int uniuqID = 23463;
+    private Date[] date;
+    Calendar calendar1;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -102,14 +105,8 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         }
 
 
-
-
-
 // you can directly pass Date objects to DataPoint-Constructor
 // this will convert the Date to double via Date#getTime()
-
-
-
 
         Calendar calendar1 = new GregorianCalendar(2016,06,19);
         Calendar calendar2 = new GregorianCalendar(2016,06,20);
@@ -122,7 +119,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
         Calendar calendar = Calendar.getInstance();
 
-
+        ArrayList<Date> dates = new ArrayList<>();
         Date d1 = calendar1.getTime();
         Date d2 = calendar2.getTime();
         Date d3 = calendar3.getTime();
@@ -132,18 +129,20 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         Date d7 = calendar7.getTime();
         Date d8 = calendar8.getTime();
 
+        dates.add(d1);
+
         GraphView graph = (GraphView) findViewById(R.id.graph);
 
 
+        LineGraphSeries<DataPoint> series2 = new LineGraphSeries<>(getGraphData());
 
-        getGraphData();
 
-    //    LineGraphSeries<DataPoint> series = new LineGraphSeries<>(getGraphData());
+
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
                 new DataPoint(d1, 4),
                 new DataPoint(d2, 3),
                 new DataPoint(d3, 4),
-                new DataPoint(d4, 6),
+                new DataPoint(d4, 20),
                 new DataPoint(d5, 1),
                 new DataPoint(d6, 3),
                 new DataPoint(d7, 4),
@@ -152,31 +151,37 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         });
 
 
-        graph.addSeries(series);
-
+        graph.addSeries(series2);
+        series2.setColor(Color.GREEN);
+       // graph.addSeries(series);
 // set date label formatter
         graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-        graph.getGridLabelRenderer().setNumHorizontalLabels(4); // only 4 because of the space
+        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
 
 // set manual x bounds to have nice steps
 //
-        graph.getViewport().setMinX(d1.getTime());
-        graph.getViewport().setMaxX(d8.getTime());
+        graph.getViewport().setMinX(date[0].getTime());
+        graph.getViewport().setMaxX(date[date.length - 1].getTime());
         graph.getViewport().setXAxisBoundsManual(true);
 
+        for (int i = 0; i < date.length; i++) {
+            Log.d("DateBuildTest", "getGraphData: "  + date[i]);
+        }
+
+
+
         graph.getViewport().setMinY(1.0);
-        graph.getViewport().setMaxY(15.0);
+        graph.getViewport().setMaxY(150.0);
         graph.getViewport().setYAxisBoundsManual(true);
 
 // as we use dates as labels, the human rounding to nice readable numbers
 // is not necessary
+
         graph.getGridLabelRenderer().setHumanRounding(false);
 
     }
 
-
-
-
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private DataPoint[] getGraphData() {
 
         double wight = 0;
@@ -184,63 +189,51 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         double set = 1;
         double avgWight = 0;
         double avgRegs = 0;
-        String dateBind;
+
         ArrayList<String> dates = new ArrayList<String>();
 
         int count = 0;
-        DataPoint[] values = new DataPoint[count];
         ArrayList<Double> arl =new ArrayList<>();
-
-
-
-
+        List<Results> totalResultHolder;
 
             List<DisplaySet> displayIsCheck = mDataSource.getDisplaySetByExerciseId(mExercise.getExerciseId());
+
+            String[] dateBind = new String[displayIsCheck.size()];
+            int i = 0;
             for (DisplaySet displaySetItem: displayIsCheck) {
 
-
-                if (displaySetItem.getIsChecked()==0){
-                List<Results> totalResults = mDataSource.getResultsByDisplaySetId(displaySetItem.getDisplaySetId());
-                    for (Results resultItem: totalResults) {
-                        if(totalResults.size() != 0) {
-
-
-
-
-
-                            Log.d("DBPull", "DBPull : " +  resultItem.getWight() + "/"+  resultItem.getReps() +"/    "+ resultItem.getTimeStamp());
-                            set = displaySetItem.getSets();
-
-
-                            wight += resultItem.getWight();
-                            reps += resultItem.getReps();
-
-
-                        }
-                    }
-
-                }
-
-                Log.d("DBPull", "DBPull : " +  wight);
+                dateBind[i] = displaySetItem.getDisplaySetId();
+                i++;
 
             }
+        totalResultHolder = mDataSource.getResultsDataPoint(dateBind);
 
-        avgWight = wight/set;
-        avgRegs = reps/set;
-        arl.add(avgWight);
-        // Log.d("DBPull", "DBPull : " +  arl + " " + wight);
+        DataPoint[] values = new DataPoint[totalResultHolder.size()];
+        date = new Date[totalResultHolder.size()];
+        for (int ii=0; ii<totalResultHolder.size(); ii++) {
+            String x = totalResultHolder.get(ii).getTimeStamp();
+
+            String [] allDated = x.split("/");
+
+            int year = Integer.parseInt(allDated[2]);
+            int month = Integer.parseInt(allDated[0]);
+            int day = Integer.parseInt(allDated[1]);
+
+            calendar1 = new GregorianCalendar(year,1-month,day);
+
+            //calendar1 = new GregorianCalendar(2016,07,01);
+
+
+            date[ii] = calendar1.getTime();
+            double y = totalResultHolder.get(ii).getWight();
+            DataPoint v = new DataPoint(date[ii], totalResultHolder.get(ii).getWight());
 
 
 
-       // Log.d("DBPull", "DBPull : " +  arl);
-
-
-        for (int i=0; i<count; i++) {
-            double x = i;
-            double f = 0;
-            double y = 0;
-            DataPoint v = new DataPoint(x, y);
-            values[i] = v;
+            values[ii] =v;
+        }
+        for (int q = 0; q < date.length; q++) {
+            Log.d("DateBuildTest", "getGraphData: Other "  + date[q]);
         }
         return values;
     }
