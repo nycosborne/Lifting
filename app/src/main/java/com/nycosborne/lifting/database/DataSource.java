@@ -272,34 +272,26 @@ public class DataSource {
     public List<Results> getResultsDataPoint(String[] id1) {
         Cursor cursor = null;
 
-        String queryTest = " ";
-
-        String queryString = "SELECT SUM(wight),SUM(reps), timeStamp FROM results  where displaySetId =" +
-                "'a3184ecf-5df8-4e7b-86a8-a73fe589e1e5' or 'da13ef33-f672-4c1b-ac1c-8196b81d5419' GROUP BY timeStamp";
-
-
-        queryTest = "SELECT SUM(wight),SUM(reps), timeStamp FROM results where displaySetId =";
+        String queryTest = "SELECT SUM("+ResultsTable.COLUMN_WIGHT_RESULT+"),SUM("+ResultsTable.COLUMN_REP_RESULT+")," +
+                " "+ResultsTable.COLUMN_DATETIME+" FROM "+ResultsTable.TABLE_RESULTS+" where "+ResultsTable.COLUMN_DISPLAY_SET_ID+" =";
 
         for (int i = 0; i < id1.length; i++) {
 
             if (i+1<id1.length) {
-                queryTest = queryTest.concat("'" + id1[i] + "'" + " or displaySetId =");
+                queryTest = queryTest.concat("'" + id1[i] + "'" + " or "+ResultsTable.COLUMN_DISPLAY_SET_ID+" =");
             }else {
                 queryTest = queryTest.concat("'" + id1[i] + "'");
             }
-
         }
-        queryTest = queryTest.concat(" GROUP BY timeStamp");
+        queryTest = queryTest.concat(" GROUP BY "+ResultsTable.COLUMN_DATETIME+"");
         Log.d("queryCheck", "getResultsDataPoint: " + queryTest);
-//        cursor = mDatabases.rawQuery("SELECT SUM(" + ResultsTable.COLUMN_WIGHT_RESULT +
-//                "), SUM("+ResultsTable.COLUMN_WIGHT_RESULT+"), timeStamp FROM results where displaySetId ='"+queryString+ "'", null);
 
         cursor = mDatabases.rawQuery(queryTest,null);
         List<Results> dataItems = new ArrayList<>();
 
         while (cursor.moveToNext()){
             Results item = new Results();
-           item.setWight(cursor.getInt(0));
+            item.setWight(cursor.getInt(0));
             item.setReps(cursor.getInt(1));
             item.setTimeStamp(cursor.getString(cursor.getColumnIndex(ResultsTable.COLUMN_DATETIME)));
 
@@ -309,7 +301,6 @@ public class DataSource {
         cursor.close();
 
         return  dataItems;
-
     }
 
 

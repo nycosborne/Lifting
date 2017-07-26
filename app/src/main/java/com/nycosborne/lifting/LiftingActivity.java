@@ -68,6 +68,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
     private static final int uniuqID = 23463;
     private Date[] date;
     Calendar calendar1;
+    double avgWightDevider;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -105,63 +106,18 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         }
 
 
-// you can directly pass Date objects to DataPoint-Constructor
-// this will convert the Date to double via Date#getTime()
-
-        Calendar calendar1 = new GregorianCalendar(2016,06,19);
-        Calendar calendar2 = new GregorianCalendar(2016,06,20);
-        Calendar calendar3 = new GregorianCalendar(2016,06,21);
-        Calendar calendar4 = new GregorianCalendar(2016,06,26);
-        Calendar calendar5 = new GregorianCalendar(2016,07,11);
-        Calendar calendar6 = new GregorianCalendar(2016,07,13);
-        Calendar calendar7 = new GregorianCalendar(2016,07,21);
-        Calendar calendar8 = new GregorianCalendar(2016,07,23);
-
-        Calendar calendar = Calendar.getInstance();
-
-        ArrayList<Date> dates = new ArrayList<>();
-        Date d1 = calendar1.getTime();
-        Date d2 = calendar2.getTime();
-        Date d3 = calendar3.getTime();
-        Date d4 = calendar4.getTime();
-        Date d5 = calendar5.getTime();
-        Date d6 = calendar6.getTime();
-        Date d7 = calendar7.getTime();
-        Date d8 = calendar8.getTime();
-
-        dates.add(d1);
-
         GraphView graph = (GraphView) findViewById(R.id.graph);
 
 
-        LineGraphSeries<DataPoint> seriesReps = new LineGraphSeries<>(getRepsGraphData());
 
         LineGraphSeries<DataPoint> seriesWeight = new LineGraphSeries<>(getWeightGraphData());
-        Log.d("BuildTest", "onCreate: " + getRepsGraphData().length);
-        Log.d("BuildTest", "onCreate: " + getWeightGraphData().length);
-
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
-                new DataPoint(d1, 4),
-                new DataPoint(d2, 3),
-                new DataPoint(d3, 4),
-                new DataPoint(d4, 20),
-                new DataPoint(d5, 1),
-                new DataPoint(d6, 3),
-                new DataPoint(d7, 4),
-                new DataPoint(d8, 10),
-
-        });
-
-
+        LineGraphSeries<DataPoint> seriesReps = new LineGraphSeries<>(getRepsGraphData());
 
         graph.addSeries(seriesWeight);
         graph.addSeries(seriesReps);
         seriesWeight.setColor(Color.RED);
-       // graph.addSeries(series);
-// set date label formatter
+
         graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-
-
         graph.getGridLabelRenderer().setNumHorizontalLabels(4); // only 4 because of the space
 
 // set manual x bounds to have nice steps
@@ -173,9 +129,9 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
         }
 
-        graph.getViewport().setMinY(1.0);
-        graph.getViewport().setMaxY(150.0);
-        graph.getViewport().setYAxisBoundsManual(true);
+//        graph.getViewport().setMinY(0.0);
+//        graph.getViewport().setMaxY(150.0);
+       // graph.getViewport().setYAxisBoundsManual(true);
 
 // as we use dates as labels, the human rounding to nice readable numbers
 // is not necessary
@@ -191,7 +147,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         double set = 1;
         double avgWight = 0;
         double avgRegs = 0;
-
+        double total =0;
         ArrayList<String> dates = new ArrayList<String>();
 
         int count = 0;
@@ -234,22 +190,18 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
             double y = totalResultHolder.get(ii).getWight();
             DataPoint v = new DataPoint(date[ii], totalResultHolder.get(ii).getWight());
 
-
+            total += totalResultHolder.get(ii).getWight();
+            avgWightDevider = total/totalResultHolder.size();
 
             values[ii] =v;
         }
+
         return values;
     }
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private DataPoint[] getRepsGraphData() {
-
-        double wight = 0;
-        double reps = 0;
-        double set = 1;
-        double avgWight = 0;
-        double avgRegs = 0;
 
         ArrayList<String> dates = new ArrayList<String>();
 
@@ -287,13 +239,15 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
             calendar1 = new GregorianCalendar(year+2000,month,day);
 
             date[ii] = calendar1.getTime();;
-            DataPoint v = new DataPoint(date[ii], totalResultHolder.get(ii).getReps());
-
+            DataPoint v = new DataPoint(date[ii],
+                    (totalResultHolder.get(ii).getReps() + avgWightDevider));
 
 
             values[ii] =v;
         }
+
         return values;
+
     }
 
     @Override
