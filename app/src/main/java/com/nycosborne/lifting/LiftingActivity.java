@@ -69,6 +69,8 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
     private Date[] date;
     Calendar calendar1;
     double avgWightDevider;
+    double minWight;
+    double maxWight;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -117,26 +119,34 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         graph.addSeries(seriesReps);
         seriesWeight.setColor(Color.RED);
 
-        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-        graph.getGridLabelRenderer().setNumHorizontalLabels(4); // only 4 because of the space
+        if ( date.length > 0) {
+
+            graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
+            graph.getGridLabelRenderer().setNumHorizontalLabels(4); // only 4 because of the space
 
 // set manual x bounds to have nice steps
-
-        if ( date.length > 0) {
             graph.getViewport().setMinX(date[0].getTime());
             graph.getViewport().setMaxX(date[date.length - 1].getTime());
             graph.getViewport().setXAxisBoundsManual(true);
 
+        }else {
+            graph.getViewport().setXAxisBoundsManual(false);
+            graph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
         }
 
-//        graph.getViewport().setMinY(0.0);
+
+        Log.d("VarTrack", "getWeightGraphData: " + minWight);
+
+      //  graph.getViewport().setMinY(0);
+        graph.getViewport().setMinY(minWight-(minWight*.1));
 //        graph.getViewport().setMaxY(150.0);
-       // graph.getViewport().setYAxisBoundsManual(true);
+        graph.getViewport().setYAxisBoundsManual(true);
 
 // as we use dates as labels, the human rounding to nice readable numbers
 // is not necessary
 
         graph.getGridLabelRenderer().setHumanRounding(false);
+        graph.getGridLabelRenderer().setVerticalLabelsVisible(false);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -165,26 +175,19 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
             }
         totalResultHolder = mDataSource.getResultsDataPoint(dateBind);
-
+        if (totalResultHolder.size() > 0 ) {
+            minWight = totalResultHolder.get(0).getWight();
+        }
         DataPoint[] values = new DataPoint[totalResultHolder.size()];
         date = new Date[totalResultHolder.size()];
         for (int ii=0; ii<totalResultHolder.size(); ii++) {
             String x = totalResultHolder.get(ii).getTimeStamp();
-
-
             String [] allDated = x.split("/");
-
             int year = Integer.parseInt(allDated[2]);
             int month = Integer.parseInt(allDated[0]);
             int day = Integer.parseInt(allDated[1]);
 
-            int test  = 01;
-
-
-//            calendar1 = new GregorianCalendar(17,6,day);
-            calendar1 = new GregorianCalendar(year+2000,month,day);
-
-// TODO: 7/24/17 it's the month thats wiered
+            calendar1 = new GregorianCalendar(year+2000,month-1,day);
 
             date[ii] = calendar1.getTime();
             double y = totalResultHolder.get(ii).getWight();
@@ -192,6 +195,12 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
             total += totalResultHolder.get(ii).getWight();
             avgWightDevider = total/totalResultHolder.size();
+
+            if(minWight>totalResultHolder.get(ii).getWight()){
+                minWight = totalResultHolder.get(ii).getWight();
+            }
+
+
 
             values[ii] =v;
         }
@@ -236,7 +245,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
             int test  = 01;
 
 
-            calendar1 = new GregorianCalendar(year+2000,month,day);
+            calendar1 = new GregorianCalendar(year+2000,month-1,day);
 
             date[ii] = calendar1.getTime();;
             DataPoint v = new DataPoint(date[ii],
@@ -511,7 +520,6 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         for (Exercise ExerciseItem: allExercises ) {
             List<DisplaySet> displayIsCheck = dbCheckUpdate.getDisplaySetByExerciseId(ExerciseItem.getExerciseId());
             for (DisplaySet displaySetItem: displayIsCheck) {
-                Log.d(TAG, "isAllCheck: " + displaySetItem.getIsChecked());
                 if (displaySetItem.getIsChecked() == 0){
                     allCheck = false;
                 }
