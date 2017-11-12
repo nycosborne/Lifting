@@ -16,8 +16,14 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/exercisesComplete"
+        android:id="@+id/exercisesPregress"
         android:title="@string/exercises_progress"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/exercisesEnd"
+        android:title="End Exercise"
+        app:showAsAction="never" />
+
 
 </menu>
