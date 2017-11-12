@@ -19,7 +19,16 @@ https://play.google.com/store/apps/details?id=com.nycosborne.lifting
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+Open priject with Android Sruido
+
+Dependencies  
+* GraphView-4.2.1 
+* appcompat-v7:25
+* constraint:constraint-layout:1.0.2
+* recyclerview-v7:25.3.1'
+* design:25.3.1'
+* cardview-v7:25.3.1'
+* testCompile 'junit:junit:4.12'
 
 ## Built With
 
