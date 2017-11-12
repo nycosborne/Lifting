@@ -4,24 +4,31 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.icu.util.Calendar;
+import android.icu.util.GregorianCalendar;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 import com.nycosborne.lifting.adapter.DisplaySetAdapter;
 import com.nycosborne.lifting.database.DataSource;
 import com.nycosborne.lifting.model.DisplaySet;
@@ -29,34 +36,33 @@ import com.nycosborne.lifting.model.Exercise;
 import com.nycosborne.lifting.model.Results;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class LiftingActivity extends AppCompatActivity implements DisplaySetAdapter.ItemClickCallback {
     private static final String TAG = "LIFTING_ACTIVITY";
     private Exercise mExercise;
     private DataSource mDataSource;
-    public static  DisplaySet mDisplaySet;
     private DisplaySetAdapter adapter;
-
     private RecyclerView recyclerView;
-
     public AlertDialog dialog;
-
-    private DisplaySet indDisplaySet;
 
     private EditText repsInput;
     private EditText wightInput;
-    private Button saveInputBtn;
     private CountDownTimer countDownTimer = null;
     private MenuItem timy;
     private int mRestTime;
 
-    private boolean toggle = true;
     private List<DisplaySet> displayList = new ArrayList<>();
     public static String displaySetId;
     public NotificationCompat.Builder notifyOBJ;
     private static final int uniuqID = 23463;
+    private Date[] date;
+    Calendar calendar1;
+    double avgWeight;
+    double minWight;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,32 +70,126 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
         notifyOBJ = new NotificationCompat.Builder(this);
         notifyOBJ.setAutoCancel(true);
-
         mDataSource = new DataSource(this);
         try {
             List<Exercise> exerciseListt = mDataSource.getExercisesById(WorkOutActivity.exerciseSelected);
             mExercise = exerciseListt.get(0);
 
-            Log.d(TAG, "onCreate: " + mExercise.getRestTime());
-
             assert mExercise != null;
             mRestTime  = mExercise.getRestTime();
-
             recyclerView = (RecyclerView)findViewById(R.id.LiftingRecyView);
-
             displayList = mDataSource.getDisplaySetByExerciseId(mExercise.getExerciseId());
-
             adapter = new DisplaySetAdapter(this,displayList);
             adapter.setItemClickCallback(this);
             recyclerView.setAdapter(adapter);
             getSupportActionBar().setTitle(mExercise.getExerciseName());
-
-
         }catch (IndexOutOfBoundsException e){
             e.printStackTrace();
         }catch (NullPointerException e){
             e.printStackTrace();
         }
+
+        GraphView graph = (GraphView) findViewById(R.id.graph);
+
+        LineGraphSeries<DataPoint> seriesWeight = new LineGraphSeries<>(getWeightGraphData());
+        LineGraphSeries<DataPoint> seriesReps = new LineGraphSeries<>(getRepsGraphData());
+
+        graph.addSeries(seriesWeight);
+        graph.addSeries(seriesReps);
+        seriesWeight.setColor(Color.RED);
+
+        if ( date.length > 0) {
+            graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
+            graph.getGridLabelRenderer().setNumHorizontalLabels(4);
+            graph.getViewport().setMinX(date[0].getTime());
+            graph.getViewport().setMaxX(date[date.length - 1].getTime());
+            graph.getViewport().setXAxisBoundsManual(true);
+
+        }else {
+            graph.getViewport().setXAxisBoundsManual(false);
+            graph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        }
+
+        graph.getViewport().setMinY(minWight-(minWight*.1));
+//      graph.getViewport().setMaxY(150.0);
+        graph.getViewport().setYAxisBoundsManual(true);
+        graph.getGridLabelRenderer().setHumanRounding(false);
+        graph.getGridLabelRenderer().setVerticalLabelsVisible(false);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private DataPoint[] getWeightGraphData() {
+        double total =0;
+
+        List<Results> totalResultHolder;
+
+            List<DisplaySet> displayIsCheck = mDataSource.getDisplaySetByExerciseId(mExercise.getExerciseId());
+
+            String[] dateBind = new String[displayIsCheck.size()];
+            int i = 0;
+            for (DisplaySet displaySetItem: displayIsCheck) {
+
+                dateBind[i] = displaySetItem.getDisplaySetId();
+                i++;
+
+            }
+        totalResultHolder = mDataSource.getResultsDataPoint(dateBind);
+        if (totalResultHolder.size() > 0 ) {
+            minWight = totalResultHolder.get(0).getWight();
+        }
+        DataPoint[] values = new DataPoint[totalResultHolder.size()];
+        date = new Date[totalResultHolder.size()];
+        for (int ii=0; ii<totalResultHolder.size(); ii++) {
+            String x = totalResultHolder.get(ii).getTimeStamp();
+            String [] allDated = x.split("/");
+            int year = Integer.parseInt(allDated[2]);
+            int month = Integer.parseInt(allDated[0]);
+            int day = Integer.parseInt(allDated[1]);
+
+            calendar1 = new GregorianCalendar(year+2000,month-1,day);
+            date[ii] = calendar1.getTime();
+            double y = totalResultHolder.get(ii).getWight();
+            DataPoint v = new DataPoint(date[ii], totalResultHolder.get(ii).getWight());
+            total += totalResultHolder.get(ii).getWight();
+            avgWeight = total/totalResultHolder.size();
+
+            if(minWight>totalResultHolder.get(ii).getWight()){
+                minWight = totalResultHolder.get(ii).getWight();
+            }
+            values[ii] =v;
+        }
+        return values;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private DataPoint[] getRepsGraphData() {
+        List<Results> totalResultHolder;
+        List<DisplaySet> displayIsCheck = mDataSource.getDisplaySetByExerciseId(mExercise.getExerciseId());
+        String[] dateBind = new String[displayIsCheck.size()];
+        int i = 0;
+        for (DisplaySet displaySetItem: displayIsCheck) {
+            dateBind[i] = displaySetItem.getDisplaySetId();
+            i++;
+        }
+        totalResultHolder = mDataSource.getResultsDataPoint(dateBind);
+        DataPoint[] values = new DataPoint[totalResultHolder.size()];
+        date = new Date[totalResultHolder.size()];
+        for (int ii=0; ii<totalResultHolder.size(); ii++) {
+            String x = totalResultHolder.get(ii).getTimeStamp();
+            String [] allDated = x.split("/");
+
+            int year = Integer.parseInt(allDated[2]);
+            int month = Integer.parseInt(allDated[0]);
+            int day = Integer.parseInt(allDated[1]);
+
+            calendar1 = new GregorianCalendar(year+2000,month-1,day);
+            date[ii] = calendar1.getTime();;
+            DataPoint v = new DataPoint(date[ii],
+                    (totalResultHolder.get(ii).getReps() + avgWeight));
+
+            values[ii] =v;
+        }
+        return values;
     }
 
     @Override
@@ -107,7 +207,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
                 intent.putExtra("UpdateExercise", mExercise);
                 startActivity(intent);
                 return true;
-            case R.id.exercisesComplete:
+            case R.id.exercisesPregress:
                 exerciseProgress();
                 return true;
             case R.id.timer:
@@ -116,6 +216,8 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
                 }else {
                     cancelTimer();
                 }
+            case R.id.exercisesEnd:
+                workOutComplete();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -248,6 +350,7 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         int unLiftedWight = 0;
         int unLiftedResp = 0;
 
+
         List<Exercise> allExercises = mDataSource.getExercisesByWorkOutId(mExercise.getWorkOutId());
         for (Exercise ExerciseItem: allExercises ) {
 
@@ -260,8 +363,8 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
                if (displaySetItem.getIsChecked()==1){
                    totleWight += totalResults.get(0).getWight();
                    totleReps += totalResults.get(0).getReps();
-               }
 
+               }
             }
         }
 
@@ -301,7 +404,6 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
 
                     List<Results> totalResults = mDataSource.getResultsByDisplaySetId(displaySetItem.getDisplaySetId());
 
-                    // TODO: 5/12/17 bug issue here
                     try {
                         totleWight += totalResults.get(0).getWight();
                         totleReps += totalResults.get(0).getReps();
@@ -352,7 +454,6 @@ public class LiftingActivity extends AppCompatActivity implements DisplaySetAdap
         for (Exercise ExerciseItem: allExercises ) {
             List<DisplaySet> displayIsCheck = dbCheckUpdate.getDisplaySetByExerciseId(ExerciseItem.getExerciseId());
             for (DisplaySet displaySetItem: displayIsCheck) {
-                Log.d(TAG, "isAllCheck: " + displaySetItem.getIsChecked());
                 if (displaySetItem.getIsChecked() == 0){
                     allCheck = false;
                 }

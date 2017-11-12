@@ -2,12 +2,12 @@ package com.nycosborne.lifting.model;
 
 import android.content.ContentValues;
 
+import com.nycosborne.lifting.database.ResultsTable;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
-
-import com.nycosborne.lifting.database.ResultsTable;
 
 /**
  * Created by danielosborne on 4/21/17.
@@ -37,9 +37,7 @@ public class Results {
         this.displaySetId = displaysetId;
     }
 
-    public String getResultsID() {
-        return resultsID;
-    }
+
 
     public void setResultsID(String resultsID) {
         this.resultsID = resultsID;
@@ -69,8 +67,8 @@ public class Results {
         this.timeStamp = timeStamp;
     }
 
-    public String getExerciseId() {
-        return displaySetId;
+    public String getResultsID() {
+        return resultsID;
     }
 
     public void setExerciseId(String exerciseId) {
@@ -79,7 +77,7 @@ public class Results {
 
     private String getDateTime() {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
-                "MM/dd/yy HH:mm:ss", Locale.getDefault());
+                "MM/dd/yy", Locale.getDefault());
         Date date = new Date();
         return dateFormat.format(date);
     }

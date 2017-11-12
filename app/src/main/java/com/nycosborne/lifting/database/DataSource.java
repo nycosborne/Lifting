@@ -6,14 +6,15 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.util.Log;
 
 import com.nycosborne.lifting.model.DisplaySet;
 import com.nycosborne.lifting.model.Exercise;
 import com.nycosborne.lifting.model.Results;
 import com.nycosborne.lifting.model.WorkOut;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by danielosborne on 4/17/17.
@@ -268,6 +269,40 @@ public class DataSource {
 
     }
 
+    public List<Results> getResultsDataPoint(String[] id1) {
+        Cursor cursor = null;
+
+        String queryTest = "SELECT SUM("+ResultsTable.COLUMN_WIGHT_RESULT+"),SUM("+ResultsTable.COLUMN_REP_RESULT+")," +
+                " "+ResultsTable.COLUMN_DATETIME+" FROM "+ResultsTable.TABLE_RESULTS+" where "+ResultsTable.COLUMN_DISPLAY_SET_ID+" =";
+
+        for (int i = 0; i < id1.length; i++) {
+
+            if (i+1<id1.length) {
+                queryTest = queryTest.concat("'" + id1[i] + "'" + " or "+ResultsTable.COLUMN_DISPLAY_SET_ID+" =");
+            }else {
+                queryTest = queryTest.concat("'" + id1[i] + "'");
+            }
+        }
+        queryTest = queryTest.concat(" GROUP BY "+ResultsTable.COLUMN_DATETIME+"");
+        Log.d("queryCheck", "getResultsDataPoint: " + queryTest);
+
+        cursor = mDatabases.rawQuery(queryTest,null);
+        List<Results> dataItems = new ArrayList<>();
+
+        while (cursor.moveToNext()){
+            Results item = new Results();
+            item.setWight(cursor.getInt(0));
+            item.setReps(cursor.getInt(1));
+            item.setTimeStamp(cursor.getString(cursor.getColumnIndex(ResultsTable.COLUMN_DATETIME)));
+
+
+            dataItems.add(item);
+        }
+        cursor.close();
+
+        return  dataItems;
+    }
+
 
    public List<DisplaySet> getDisplaySetByExerciseId(String exceriseId) {
        Cursor cursor = null;
@@ -318,8 +353,6 @@ public class DataSource {
             // cursor = mDatabases.rawQuery("Select " + ResultsTable.COLUMN_REP_RESULT + " FROM " + ResultsTable.TABLE_RESULTS, null);
 
         }
-
-
         List<DisplaySet> dataItems = new ArrayList<>();
 
         while (cursor.moveToNext()){
@@ -338,6 +371,10 @@ public class DataSource {
         return  dataItems;
 
     }
+
+
+
+
 
 
 
@@ -367,7 +404,7 @@ public class DataSource {
 
     }
 
-
+    // TODO: 7/20/17 need to see the I can update rest time
     public int updateExceriseRestTime(Exercise exercise, String newExerciseName){
 
         ContentValues values = exercise.toValue();
